@@ -382,15 +382,15 @@ private:
   std::queue<long> commands_to_free_;
   std::mutex free_queue_guard_;
 
-// Commands use this method to deregister themselves from Redox,
-// give it access to private members
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunsupported-friend"
+  // Commands use this method to deregister themselves from Redox,
+  // give it access to private members
+  // #pragma GCC diagnostic push
+  // #pragma GCC diagnostic ignored "-Wunsupported-friend"
   template <class ReplyT> friend void Command<ReplyT>::free();
 
   // Access to call disconnectedCallback
   template <class ReplyT> friend void Command<ReplyT>::processReply(redisReply *r);
-#pragma GCC diagnostic pop
+  // #pragma GCC diagnostic pop
 };
 
 // ------------------------------------------------

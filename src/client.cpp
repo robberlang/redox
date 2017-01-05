@@ -48,7 +48,6 @@ namespace redox {
 Redox::Redox() : evloop_(nullptr) {}
 
 bool Redox::connect(const string &host, const int port, function<void(int)> connection_callback) {
-
   host_ = host;
   port_ = port;
   user_connection_callback_ = connection_callback;
@@ -74,8 +73,25 @@ bool Redox::connect(const string &host, const int port, function<void(int)> conn
     });
   }
 
-  // Return if succeeded
-  return getConnectState() == CONNECTED;
+  // Check success
+  bool success = getConnectState() == CONNECTED;
+
+  // If unsuccessful do some cleanup so the user can attempt
+  // to connect again.
+  if (!success) {
+    if (getRunning()) {
+      stop();
+    }
+
+    if (event_loop_thread_.joinable())
+      event_loop_thread_.join();
+
+    if (evloop_ != nullptr) {
+      ev_loop_destroy(evloop_);
+      evloop_ = nullptr;
+    }
+  }
+  return success;
 }
 
 bool Redox::connectUnix(const string &path, function<void(int)> connection_callback) {

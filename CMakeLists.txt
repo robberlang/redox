@@ -10,6 +10,7 @@ option(lib "Build Redox as a dynamic library." ON)
 option(static_lib "Build Redox as a static library." ON)
 option(tests "Build all tests." OFF)
 option(examples "Build all examples." OFF)
+option(use_static_libs "Link statically against non-system libs" ON)
 
 # Use Release if no configuration specified
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
@@ -38,9 +39,23 @@ if(CMAKE_VERSION VERSION_GREATER 2.8.5 OR CMAKE_VERSION VERSION_EQUAL 2.8.5)
   include(GNUInstallDirs)
 endif()
 
+if(use_static_libs)
+  # look for libraries that have .a suffix
+  set(_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+  if(WIN32)
+    list(INSERT CMAKE_FIND_LIBRARY_SUFFIXES 0 .lib .a)
+  else()
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+  endif()
+endif()
+
 find_package(Threads REQUIRED)
 find_package(hiredis REQUIRED)
 find_package(libev REQUIRED)
+
+if(use_static_libs)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ${_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+endif()
 
 set(REDOX_LIB_INCLUDES
   ${HIREDIS_INCLUDE_DIRS}

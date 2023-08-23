@@ -57,6 +57,7 @@ bool Redox::connect(const string &host, const int port, function<void(int)> conn
 
   // Connect over TCP
   ctx_ = redisAsyncConnect(host.c_str(), port);
+  redisEnableKeepAlive(&(ctx_->c));
 
   if (!initHiredis())
     return false;

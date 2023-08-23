@@ -207,27 +207,23 @@ if (examples)
 endif()
 
 # ---------------------------------------------------------
-# Install (sudo make install)
+# Install
 # ---------------------------------------------------------
 
-if(NOT CMAKE_INSTALL_PREFIX)
-   set(CMAKE_INSTALL_PREFIX /usr/)
-endif(NOT CMAKE_INSTALL_PREFIX)
-
-# Check if it is a 64 bit system
-if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT LIB_SUFFIX)
-    set(LIB_SUFFIX "64")
-endif()
-
+set(INSTALL_TARGETS "")
 if (lib)
-  # Install the dynamic library to /usr/lib[64]
-  install(TARGETS redox DESTINATION lib${LIB_SUFFIX})
+  list(APPEND INSTALL_TARGETS redox)
 endif()
 
 if (static_lib)
-  # Install the static library to /usr/lib[64]
-  install(TARGETS redox_static DESTINATION lib${LIB_SUFFIX})
+  list(APPEND INSTALL_TARGETS redox_static)
 endif()
+
+INSTALL(TARGETS ${INSTALL_TARGETS}
+    EXPORT redox-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Install the headers into /usr/include/redox
 install(FILES ${INC_REDOX_CORE} DESTINATION include/redox)
